@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     "Website resmi Pemerintah Desa Lidi, Kecamatan Rana Mese, Kab/Kota Manggarai Timur, NTT.",
 
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
 
   openGraph: {
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
       "Website resmi Pemerintah Desa Lidi, Kecamatan Rana Mese, Kab/Kota Manggarai Timur, NTT.",
     images: [
       {
-        url: "/logo.png",
+        url: "/icon.png",
         width: 512,
         height: 512,
         alt: "Logo Desa Lidi",
