@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique 
+  password  String   
+  name      String   
+  role      String   @default("admin")  // admin, kepala_desa, warga
+  avatar    String?  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  berita            Berita[]
+  suratPengajuan    SuratPengajuan[]
+  chatMessages      ChatMessage[]
+  notifications     Notifikasi[]
+  chatRoomsAsWarga  ChatRoom[]  @relation("WargaRooms")
+  chatRoomsAsAdmin  ChatRoom[]  @relation("AdminRooms")
+}
+
+model Penduduk {
+  id           String    @id @default(cuid())
+  nik          String    @unique 
+  nama         String    
+  jenisKelamin String     // Laki-laki, Perempuan
+  tempatLahir  String?   
+  tanggalLahir DateTime?
+  alamat       String    
+  rt           String    @default("001") 
+  rw           String    @default("001") 
+  pekerjaan    String    @default("Belum Bekerja") 
+  status       String    @default("aktif")  // aktif, pindah, meninggal
+  agama        String    @default("Islam") 
+  statusKawin  String    @default("Belum Kawin")  // Belum Kawin, Kawin, Cerai
+  pendidikan   String    @default("SD")  // SD, SMP, SMA, D3, S1, S2, S3
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Berita {
+  id        String   @id @default(cuid())
+  title     String   
+  content   String   
+  image     String?  
+  images    String?   // JSON array for multiple images
+  authorId  String   
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Pengumuman {
+  id        String   @id @default(cuid())
+  title     String   
+  content   String   
+  priority  String   @default("normal")  // penting, normal, biasa
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Galeri {
+  id        String   @id @default(cuid())
+  title     String   
+  image     String   
+  images    String?   // JSON array for multiple images
+  album     String   @default("Umum")  // album name
+  category  String   @default("umum")  // umum, kegiatan, pembangunan, budaya
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SuratPengajuan {
+  id         String   @id @default(cuid())
+  nama       String   
+  nik        String   
+  alamat     String   
+  jenisSurat String    // domisili, usaha, kelahiran, kematian
+  keterangan String?  
+  noSurat    String?  
+  status     String   @default("pending")  // pending, diproses, selesai, ditolak
+  userId     String?  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model ProfilDesa {
+  id                  String   @id @default(cuid())
+  namaDesa            String   @default("Desa Lidi") 
+  kecamatan           String   @default("Kecamatan Rana Mese") 
+  kabupaten           String   @default("Kabupaten Manggarai Timur") 
+  provinsi            String   @default("NTT") 
+  kodePos             String   @default("12345") 
+  sejarah             String   @default("Sejarah desa akan diisi oleh admin.") 
+  visi                String   @default("Visi desa akan diisi oleh admin.") 
+  misi                String   @default("Misi desa akan diisi oleh admin.") 
+  kepalaDesa          String   @default("Pak Dedos") 
+  sambutanKepalaDesa  String   @default("Sambutan kepala desa akan diisi oleh admin.") 
+  fotoKepalaDesa      String   @default("") 
+  luasWilayah         Float    @default(0)
+  jumlahPenduduk      Int      @default(0)
+  jumlahKK            Int      @default(0)
+  jumlahLaki          Int      @default(0)
+  jumlahPerempuan     Int      @default(0)
+  telepon             String   @default("085773617907") 
+  email               String   @default("desa@Lidi.go.id") 
+  alamat              String   @default("Jl. Desa Lidi") 
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model StrukturOrganisasi {
+  id        String   @id @default(cuid())
+  nama      String   
+  jabatan   String   
+  foto      String?  
+  urutan    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notifikasi {
+  id        String   @id @default(cuid())
+  title     String   
+  message   String   
+  type      String   @default("info")  // info, warning, success, danger
+  userId    String?  
+  isRead    Boolean  @default(false)
+  link      String?  
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Kegiatan {
+  id          String    @id @default(cuid())
+  title       String    
+  description String?   
+  date        DateTime
+  endDate     DateTime?
+  time        String?    // e.g. "08:00"
+  location    String?   
+  category    String    @default("umum")  // umum, pemerintahan, sosial, budaya, pendidikan
+  status      String    @default("akan_datang")  // akan_datang, berlangsung, selesai, dibatalkan
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Agenda {
+  id          String   @id @default(cuid())
+  title       String   
+  description String?  
+  date        DateTime
+  time        String?   // e.g. "08:00 - 12:00"
+  location    String?  
+  pic         String?   // penanggung jawab
+  category    String   @default("umum")  // umum, rapat, kegiatan, pelayanan
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChatRoom {
+  id        String   @id @default(cuid())
+  wargaId   String   
+  adminId   String?  
+  subject   String   @default("Pertanyaan Umum") 
+  status    String   @default("active")  // active, closed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  warga   User          @relation("WargaRooms", fields: [wargaId], references: [id])
+  admin   User?         @relation("AdminRooms", fields: [adminId], references: [id])
+  messages ChatMessage[]
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String   
+  senderId  String   
+  message   String   
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  room   ChatRoom @relation(fields: [roomId], references: [id])
+  sender User     @relation(fields: [senderId], references: [id])
+}
